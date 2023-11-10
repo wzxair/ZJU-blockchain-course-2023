@@ -26,7 +26,6 @@
 补充如何完整运行你的应用。
 
 1. 在本地启动ganache应用。
-
 2. 在 `./contracts` 中安装需要的依赖，运行如下的命令：
     ```bash
     npm install
@@ -35,28 +34,53 @@
     ```bash
     npx hardhat compile
     ```
-4. ...
-5. ...
-6. 在 `./frontend` 中安装需要的依赖，运行如下的命令：
+4. 在ganache中创建新的workspace，修改端口为http://127.0.0.1:8545
+5. 在 `./frontend` 中安装需要的依赖，运行如下的命令：
     ```bash
     npm install
     ```
-7. 在 `./frontend` 中启动前端程序，运行如下的命令：
+6. 在 `./frontend` 中启动前端程序，运行如下的命令：
     ```bash
     npm run start
     ```
 
+
 ## 功能实现分析
 
 简单描述：项目完成了要求的哪些功能？每个功能具体是如何实现的？
+0. 数据存储
+    创建了很多数组来存储各种信息。
+1. 连接钱包
+    用了彩票demo里提供的代码段。
+2. 发行汽车NFT
+    单击“领取车辆”即可创建一个ERC721代币到当前账户上。为方便演示没有设置上限。
+    使用keccak256()生成随机散列作为tokenId，再使用_safeMint()接口来创建NFT，更新几个数组。
+3. 查询已拥有的车辆
+    直接返回数组。
+4. 查询可借用的车辆
+    直接返回数组*2
+5. 查询车辆
+    输入车辆的tokenId，直接返回车辆的主人和借用者。如果车辆没有被借用，借用者就返回全0地址。
+6. 借车
+    输入tokenId和借用时间，若符合要求则修改车辆的借用者，并将其从可借用车辆中移除。
+    由于solidity没有提供直接移除某个指定值的函数，所以写了一个removeByValue来方便把被借用车从可接车数组中移除，其中调用了pop()来避免出现空值。
 
-建议分点列出。
 
 ## 项目运行截图
+1. 连接钱包
+![Alt text](screenshots/image-1.png)
+2. 领取车辆
+![Alt text](screenshots/image-2.png)
+3. 查询已拥有车辆
+![Alt text](screenshots/image-3.png)
+4. 查询可借用车辆
+![Alt text](screenshots/image-4.png)
+5. 查询某一辆车
+![Alt text](screenshots/image-5.png)
+![Alt text](screenshots/image-6.png)
+6. 借用车辆
+![Alt text](screenshots/image-7.png)
 
-放一些项目运行截图。
-
-项目运行成功的关键页面和流程截图。主要包括操作流程以及和区块链交互的截图。
 
 ## 参考内容
 

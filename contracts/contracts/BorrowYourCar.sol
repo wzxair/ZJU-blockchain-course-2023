@@ -55,7 +55,7 @@ contract BorrowYourCar is ERC721{
     function borrowCar(uint256 tokenId,uint256 duration) external{
         require(cars[tokenId].owner!=address(0),"The car does not exist!");
         require(cars[tokenId].borrower==address(0),"The car has been borrowed!");
-        require(cars[tokenId].owner==msg.sender,"This is your own car!");
+        require(cars[tokenId].owner!=msg.sender,"This is your own car!");
         cars[tokenId].borrower=msg.sender;
         cars[tokenId].borrowUntil=block.timestamp+duration;
         removeByValue(available_cars,tokenId);

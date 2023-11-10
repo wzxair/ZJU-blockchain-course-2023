@@ -4,8 +4,11 @@ import {BorrowYourCarContract, web3} from "../../utils/contracts";
 import './index.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {Row,Col,Card, Table, Tag, Divider, Modal, Button, Image,  Avatar, List, Skeleton} from 'antd';
-import {Header} from "../../assets";
-
+import car_1 from "../../assets/car_1.jpg";
+import car_2 from "../../assets/car_2.jpg";
+import car_3 from "../../assets/car_3.jpg";
+import car_4 from "../../assets/car_4.jpg";
+import car_5 from "../../assets/car_5.jpg";
 
 const GanacheTestChainId = '0x539' // Ganache默认的ChainId = 0x539 = Hex(1337)
 // TODO change according to your configuration
@@ -21,12 +24,13 @@ const BorrowYourCarPage =()=>{
     const [account, setAccount] = useState('')
     const [borrowCarId,setBorrowCarId]=useState('')
     const [queryCarId,setQueryCarId]=useState('')
-    const [borrowTime,setBorrowTime]=useState('')
+    const [borrowTime,setBorrowTime]=useState(0)
     const [availableCars,setAvailableCars]=useState([])
     const [ownedCars,setOwnedCars]=useState([])
     const [carOwner,setCarOwner]=useState('')
     const [carBorrower,setCarBorrower]=useState('')
 
+    const images=[car_1,car_2,car_3,car_4,car_5]
 
     useEffect(() => {
         // 初始化检查用户是否已经连接钱包
@@ -96,6 +100,9 @@ const BorrowYourCarPage =()=>{
             alert(error.message)
         }
     }
+    const onClickDisconnectWallet =()=>{
+        setAccount('')
+    }
     const onQueryAvailableCars = async () => {
         if(account === '') {
             alert('You have not connected wallet yet.')
@@ -107,7 +114,6 @@ const BorrowYourCarPage =()=>{
                     from: account
                 })
                 setAvailableCars(availableCars)
-                alert('Query failed')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -126,7 +132,6 @@ const BorrowYourCarPage =()=>{
                 await BorrowYourCarContract.methods.mintCars().send({
                     from: account
                 })
-                alert('No more cars to receive')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -149,7 +154,6 @@ const BorrowYourCarPage =()=>{
                 })
                 setCarOwner(_carOwner)
                 setCarBorrower(_carBorrower)
-                alert('Query failed')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -164,10 +168,9 @@ const BorrowYourCarPage =()=>{
         }
         if (BorrowYourCarContract) {
             try {
-                await BorrowYourCarContract.methods.borrowCar(borrowCarId,parseInt(borrowTime)).send({
+                await BorrowYourCarContract.methods.borrowCar(borrowCarId,borrowTime).send({
                     from: account
                 })
-                alert('You cannot borrow this car')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -184,7 +187,6 @@ const BorrowYourCarPage =()=>{
             try {
                 const ownedCars = await BorrowYourCarContract.methods.queryOwnedCars().call({ from: account })
                 setOwnedCars(ownedCars)
-                alert('Query failed')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -202,6 +204,7 @@ const BorrowYourCarPage =()=>{
             <div className='account' style={{}}>
                 {account === '' && <Button onClick={onClickConnectWallet}>连接钱包</Button>}
                 <div>当前用户：{account === '' ? '无用户连接' : account}</div>
+                <div>{account !== ''&&<Button onClick={onClickDisconnectWallet}>断开连接</Button>}</div>
             </div>
             <div className='getCars' style={{}}>
                 {<Button onClick={onGetCar}>领取车辆</Button>}
@@ -211,19 +214,20 @@ const BorrowYourCarPage =()=>{
                 {<Button onClick={onQueryOwnedCars}>查询已拥有车辆</Button>}
                 <ul>
                     {ownedCars.map((car, index) => (
-                        <li key={index}>
+                        <li key={index} style={{listStyle:"none"}}>
                             <p>车辆ID：{car}</p>
                         </li>
                     ))}
                 </ul>
             </div>
-            <div className="availableCars" style={{}}>
+            <div className="availableCars" >
                 <h2>可借用的车辆</h2>
                 {<Button onClick={onQueryAvailableCars}>查看可借用车辆</Button>}
-                <ul>
-                    {availableCars.map((car, index) => (
-                        <li key={index}>
+                <ul >
+                    {availableCars.map((car:string, index) => (
+                        <li key={index} style={{listStyle:"none"}}>
                             <Image
+                                src={images[parseInt(car.substring(0,1))%5]}
                                 width={200} // 设置图片宽度
                             />
                             <p>车辆ID：{car}</p>
@@ -237,10 +241,18 @@ const BorrowYourCarPage =()=>{
                 <span>车辆ID:</span>
                 <input type={"number"} value={queryCarId} onChange={event => setQueryCarId(event.target.value)}/>
                 {<Button onClick={onQueryCar}>查询车辆</Button>}
+                <p>车辆主人：{carOwner}</p>
+                <p>借用者：{carBorrower}</p>
             </div>
-
+            <div className="borrowCar">
+                <h2>借用车辆</h2>
+                <span>车辆ID:</span>
+                <input type={"number"} value={borrowCarId} onChange={event => setBorrowCarId(event.target.value)}/>
+                <span>借用时间:</span>
+                <input type={"number"} value={borrowTime} onChange={event => setBorrowTime(event.target.valueAsNumber)}/>
+                {<Button onClick={onBorrowCar}>借用车辆</Button>}
+            </div>
         </div>
     )
-
 }
 export default BorrowYourCarPage;
